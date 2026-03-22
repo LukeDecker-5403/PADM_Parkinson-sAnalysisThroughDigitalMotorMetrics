@@ -1,7 +1,7 @@
 # PADM_Parkinson-sAnalysisThroughDigitalMotorMetrics
 PADM (Parkinson’s Analysis through Digital Motor metrics) is a research project focused on detecting early signs of Parkinson’s disease through subtle keyboard and touchpad interactions. By analyzing fine motor and cognitive patterns, PADM aims to create a non-invasive, accessible tool for early screening and continuous data-driven improvement.
 
-See PADM System Reoprt: https://docs.google.com/document/d/1ZbnggT9sjenTIF3d-PeOvVNwa4n3t2MmPInsLc4gpAA/edit?usp=sharing
+See PADM System Report: https://docs.google.com/document/d/1ZbnggT9sjenTIF3d-PeOvVNwa4n3t2MmPInsLc4gpAA/edit?usp=sharing
 
 2/24/2026
 Primary Developer: Randall Luke Decker
