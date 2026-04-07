@@ -18,7 +18,7 @@ from dataclasses import dataclass, asdict
 from typing import List, Tuple, Optional, Dict
 import math
 import statistics
-
+import numpy as np
 
 try:
     import numpy as np
