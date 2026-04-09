@@ -19,6 +19,10 @@ It prepares structured outputs for dataset comparison and similarity scoring.
 Author: Luke Decker project scaffold
 """
 
+# Standard library imports for datetime handling, JSON serialization,
+# dataclass convenience, and type hints.
+# Input: none directly in this module import section.
+# Output: makes classes and functions below available for use.
 from __future__ import annotations
 
 from dataclasses import dataclass, asdict, field
@@ -27,6 +31,9 @@ from typing import Any, Dict, Optional
 import json
 
 
+# Participant metadata definition.
+# Input: participant metadata fields provided by the caller when creating a ParticipantProfile.
+# Output: structured metadata dictionary available via to_dict().
 @dataclass
 class ParticipantProfile:
     """Basic participant metadata for a PADM assessment session."""
@@ -39,9 +46,13 @@ class ParticipantProfile:
     notes: str = ""
 
     def to_dict(self) -> Dict[str, Any]:
+        """Convert participant metadata to a plain dictionary."""
         return asdict(self)
 
 
+# Unified assessment record combining participant metadata with motor and cognitive outputs.
+# Input: ParticipantProfile instance and motor/cognitive results provided by the manager.
+# Output: full assessment payload and flattened feature vector for downstream export or analysis.
 @dataclass
 class PADMAssessmentRecord:
     """Unified export structure that combines motor and cognitive outputs."""
@@ -51,6 +62,7 @@ class PADMAssessmentRecord:
     cognitive_results: Dict[str, Dict[str, Any]] = field(default_factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        """Build a dictionary representation of the complete assessment record."""
         return {
             "participant": self.participant.to_dict(),
             "created_at": self.created_at,
@@ -78,6 +90,9 @@ class PADMAssessmentRecord:
         return flat
 
 
+# Manager class for saving results and exporting session data.
+# Input: initialized with a ParticipantProfile; methods accept motor/cognitive test outputs.
+# Output: assembled export dictionary, JSON payload, and summary statistics.
 class PADMAssessmentManager:
     """Central manager for collecting and exporting PADM results."""
 
@@ -85,15 +100,24 @@ class PADMAssessmentManager:
         self.record = PADMAssessmentRecord(participant=participant)
 
     def save_motor_result(self, test_name: str, result: Any) -> None:
+        """Save motor test results into the assessment record."""
         self.record.motor_results[test_name] = self._normalize_result(result)
 
     def save_cognitive_result(self, test_name: str, result: Any) -> None:
+        """Save cognitive test results into the assessment record."""
         self.record.cognitive_results[test_name] = self._normalize_result(result)
 
     def export_dict(self) -> Dict[str, Any]:
+        """Return the full assessment payload as a dictionary."""
         return self.record.to_dict()
 
     def export_json(self, filepath: Optional[str] = None, indent: int = 2) -> str:
+        """
+        Serialize the full assessment payload to JSON.
+
+        Input: optional filepath to write the JSON output.
+        Output: JSON string payload, optionally also written to file.
+        """
         payload = json.dumps(self.export_dict(), indent=indent)
         if filepath:
             with open(filepath, "w", encoding="utf-8") as f:
@@ -101,6 +125,7 @@ class PADMAssessmentManager:
         return payload
 
     def summary(self) -> Dict[str, Any]:
+        """Return a compact summary of completed motor and cognitive tests."""
         motor_count = len(self.record.motor_results)
         cognitive_count = len(self.record.cognitive_results)
         return {
@@ -113,6 +138,7 @@ class PADMAssessmentManager:
 
     @staticmethod
     def _normalize_result(result: Any) -> Dict[str, Any]:
+        """Convert a result object into a dictionary for storage."""
         if hasattr(result, "to_dict"):
             return result.to_dict()
         if isinstance(result, dict):
@@ -120,6 +146,9 @@ class PADMAssessmentManager:
         raise TypeError("Result must be a dict or expose a to_dict() method.")
 
 
+# Standalone script demo block.
+# Input: hardcoded participant metadata and example motor/cognitive results.
+# Output: printed session summary and JSON payload for demonstration.
 if __name__ == "__main__":
     participant = ParticipantProfile(
         participant_id="demo_001",

@@ -12,6 +12,9 @@ Tests implemented:
 Author: Luke Decker project scaffold
 """
 
+# Import section for core typing, math, statistics, and optional NumPy support.
+# Input: none directly at import time.
+# Output: provides helper modules and types used by motor test classes below.
 from __future__ import annotations
 
 from dataclasses import dataclass, asdict
@@ -30,10 +33,9 @@ Point = Tuple[float, float]
 TimedPoint = Tuple[float, float, float]  # (timestamp, x, y)
 
 
-
 # RESULT DATA CLASSES
-# =========================================
-
+# Input: values supplied when a result object is instantiated.
+# Output: simple dictionaries usable by export layers and downstream processors.
 @dataclass
 class TappingTestResult:
     """Results from tapping speed assessment."""
@@ -45,7 +47,7 @@ class TappingTestResult:
     interval_std_seconds: Optional[float]
 
     def to_dict(self) -> Dict:
-        """Convert result to dictionary."""
+        """Convert tapping result to a dictionary."""
         return asdict(self)
 
 
@@ -61,7 +63,7 @@ class TremorTestResult:
     method: str
 
     def to_dict(self) -> Dict:
-        """Convert result to dictionary."""
+        """Convert tremor result to a dictionary."""
         return asdict(self)
 
 
@@ -76,14 +78,13 @@ class TracingTestResult:
     completion_ratio: Optional[float]
 
     def to_dict(self) -> Dict:
-        """Convert result to dictionary."""
+        """Convert tracing result to a dictionary."""
         return asdict(self)
 
 
-
 # SHARED GEOMETRY HELPERS
-# =========================================
-
+# Input: point coordinate values provided by motor tests.
+# Output: computed distances used by tracing and path analysis.
 def euclidean_distance(p1: Point, p2: Point) -> float:
     """Compute Euclidean distance between two points."""
     return math.dist(p1, p2)
@@ -131,10 +132,9 @@ def point_to_polyline_distance(p: Point, polyline: List[Point]) -> float:
     )
 
 
-
 # TAPPING SPEED TEST
-# =========================================
-
+# Input: timestamped tap events recorded during the test.
+# Output: TappingTestResult with duration, rate, and interval statistics.
 class TappingSpeedTest:
     """Collects tap timestamps and computes tapping speed metrics."""
 
@@ -182,10 +182,9 @@ class TappingSpeedTest:
         )
 
 
-
 # TREMOR RATE TEST
-# =========================================
-
+# Input: time-stamped x/y motion samples collected during tremor capture.
+# Output: TremorTestResult with estimated frequency, amplitude, and method metadata.
 class TremorRateTest:
     """Estimates tremor frequency from cursor/touchpad motion using FFT or zero-crossing."""
 
@@ -231,7 +230,6 @@ class TremorRateTest:
                 method="invalid_timestamps",
             )
 
-        # Convert motion into radial displacement from center
         mean_x = statistics.mean(xs)
         mean_y = statistics.mean(ys)
         radial = [math.sqrt((x - mean_x) ** 2 + (y - mean_y) ** 2) for x, y in zip(xs, ys)]
@@ -275,7 +273,6 @@ class TremorRateTest:
         fft_vals = np.fft.rfft(arr)
         freqs = np.fft.rfftfreq(len(arr), d=mean_dt)
 
-        # Ignore DC and focus on plausible tremor band
         band_mask = (freqs >= 1.0) & (freqs <= 20.0)
         if not np.any(band_mask):
             return None
@@ -308,14 +305,12 @@ class TremorRateTest:
         if avg_crossing_interval <= 0:
             return None
 
-        # Two zero crossings ≈ one full cycle
         return 1.0 / (2.0 * avg_crossing_interval)
 
 
-
 # TRACING PRECISION TEST
-# =========================================
-
+# Input: time-stamped trace points produced during the user tracing task.
+# Output: TracingTestResult with deviation, efficiency, and completion metrics.
 class TracingPrecisionTest:
     """Evaluates tracing accuracy by comparing user path to target path."""
 
@@ -385,10 +380,9 @@ class TracingPrecisionTest:
         return covered / len(self.target_path)
 
 
-
 # OPTIONAL SESSION WRAPPER
-# =========================================
-
+# Input: individual motor test result objects exposing to_dict().
+# Output: combined export dictionary of all saved motor test results.
 class MotorAssessmentSession:
     """Collects and exports results from multiple motor assessment tests."""
 
@@ -405,12 +399,10 @@ class MotorAssessmentSession:
         return self.results
 
 
-
 # EXAMPLE USAGE
-# =========================================
-
+# Input: sample motion and tap data hardcoded for demonstration.
+# Output: printed example results and session export dictionary.
 if __name__ == "__main__":
-   
     # Tapping test demo
     tapping = TappingSpeedTest(hand="dominant")
     tap_times = [0.00, 0.19, 0.37, 0.56, 0.75, 0.93, 1.12]
@@ -420,10 +412,8 @@ if __name__ == "__main__":
     print("TAPPING RESULT")
     print(tap_result.to_dict())
 
-   
     # Tremor test demo
     tremor = TremorRateTest(hand="dominant")
-    # Simulated motion samples
     for i in range(200):
         t = i * 0.01
         x = 100 + 3 * math.sin(2 * math.pi * 5 * t)
@@ -433,7 +423,6 @@ if __name__ == "__main__":
     print("\nTREMOR RESULT")
     print(tremor_result.to_dict())
 
- 
     # Tracing test demo
     target = [(0, 0), (50, 0), (100, 0), (150, 0)]
     tracing = TracingPrecisionTest(target_path=target)
@@ -453,7 +442,6 @@ if __name__ == "__main__":
     print("\nTRACING RESULT")
     print(tracing_result.to_dict())
 
- 
     # Session export demo
     session = MotorAssessmentSession()
     session.save_result("tapping_dominant", tap_result)

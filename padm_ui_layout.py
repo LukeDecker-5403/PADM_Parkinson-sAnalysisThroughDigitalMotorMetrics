@@ -19,6 +19,9 @@ All analysis is handled by backend modules.
 Author: Luke Decker project scaffold
 """
 
+# Import section for UI framework, JSON serialization, timing, and backend logic.
+# Input: no runtime inputs here; this section brings dependencies into scope.
+# Output: provides classes and functions later in the module with access to UI and backend features.
 from __future__ import annotations
 
 import json
@@ -30,6 +33,9 @@ from padm_motor_tests import TappingSpeedTest, TremorRateTest, TracingPrecisionT
 from padm_data_integration import ParticipantProfile, PADMAssessmentManager
 
 
+# Main application class for the PADM interface.
+# Input: no external input at class definition time.
+# Output: constructs a Tkinter window with navigation, test screens, and session export features.
 class PADMApp(tk.Tk):
     """Minimal PADM interface scaffold connected to motor-test data collection."""
 
@@ -45,6 +51,12 @@ class PADMApp(tk.Tk):
         self.show_home()
 
     def _build_shell(self) -> None:
+        """
+        Build the main UI shell with sidebar navigation and content area.
+
+        Input: none direct, uses self to create UI layout.
+        Output: initializes sidebar and content frame for the rest of the application.
+        """
         self.columnconfigure(0, weight=0)
         self.columnconfigure(1, weight=1)
         self.rowconfigure(0, weight=1)
@@ -76,12 +88,24 @@ class PADMApp(tk.Tk):
         self.content.rowconfigure(0, weight=1)
 
     def _set_content(self, frame: ttk.Frame) -> None:
+        """
+        Replace the current content frame with a new screen.
+
+        Input: frame created by the caller.
+        Output: updates the displayed content area.
+        """
         if self.current_frame is not None:
             self.current_frame.destroy()
         self.current_frame = frame
         self.current_frame.grid(row=0, column=0, sticky="nsew")
 
     def _require_manager(self) -> bool:
+        """
+        Ensure a participant profile has been created before starting tests.
+
+        Input: no external parameters, checks self.manager.
+        Output: returns True if manager exists, False otherwise and prompts the user.
+        """
         if self.manager is None:
             messagebox.showwarning("Participant Required", "Please complete Participant Setup first.")
             self.show_participant_setup()
@@ -89,6 +113,12 @@ class PADMApp(tk.Tk):
         return True
 
     def show_home(self) -> None:
+        """
+        Display the home information screen.
+
+        Input: none direct.
+        Output: renders an overview of available test and export flows.
+        """
         frame = ttk.Frame(self.content)
         ttk.Label(frame, text="PADM Interface Layout", font=("Arial", 20, "bold")).pack(anchor="w", pady=(0, 12))
         ttk.Label(
@@ -107,6 +137,13 @@ class PADMApp(tk.Tk):
         self._set_content(frame)
 
     def show_participant_setup(self) -> None:
+        """
+        Display the participant setup screen and capture metadata.
+
+        Input: user-entered text fields for participant ID, age, sex, handedness,
+               sleep quality, and genetic predisposition.
+        Output: creates a ParticipantProfile and PADMAssessmentManager for later test storage.
+        """
         frame = ttk.Frame(self.content)
         ttk.Label(frame, text="Participant Setup", font=("Arial", 18, "bold")).grid(row=0, column=0, columnspan=2, sticky="w", pady=(0, 10))
 
@@ -124,6 +161,12 @@ class PADMApp(tk.Tk):
             ttk.Entry(frame, textvariable=var, width=32).grid(row=idx, column=1, sticky="w", pady=4)
 
         def save_participant() -> None:
+            """
+            Build a ParticipantProfile from the entered fields and initialize the manager.
+
+            Input: values from the configured tk.StringVar() fields.
+            Output: stores self.manager and notifies the user.
+            """
             participant_id = fields["Participant ID"].get().strip() or "participant_001"
             age_raw = fields["Age"].get().strip()
             sleep_raw = fields["Sleep Quality (1-10)"].get().strip()
@@ -144,6 +187,12 @@ class PADMApp(tk.Tk):
         self._set_content(frame)
 
     def show_tapping_test(self) -> None:
+        """
+        Display the tapping speed test screen and capture tap timings.
+
+        Input: user-selected hand and tap events via spacebar or button.
+        Output: a TappingSpeedTest result object stored in the manager and shown as JSON.
+        """
         if not self._require_manager():
             return
 
@@ -163,11 +212,23 @@ class PADMApp(tk.Tk):
         state = {"test": None, "start_time": None, "running": False}
 
         def record_tap(_event=None):
+            """
+            Record a tap event during the active test.
+
+            Input: keyboard or button event.
+            Output: updates the internal TappingSpeedTest sample list.
+            """
             if state["running"] and state["test"] is not None and state["start_time"] is not None:
                 timestamp = time.perf_counter() - state["start_time"]
                 state["test"].record_tap(timestamp)
 
         def finish_test():
+            """
+            Finalize the tapping test and save results.
+
+            Input: internal timer callback.
+            Output: stores motor result and displays JSON in the text widget.
+            """
             if not state["running"] or state["test"] is None:
                 return
             state["running"] = False
@@ -177,6 +238,12 @@ class PADMApp(tk.Tk):
             result_text.insert(tk.END, json.dumps(result.to_dict(), indent=2))
 
         def start_test():
+            """
+            Start the tapping test and schedule its completion.
+
+            Input: button press.
+            Output: begins data capture until the 10-second timer expires.
+            """
             state["test"] = TappingSpeedTest(hand=hand_var.get())
             state["start_time"] = time.perf_counter()
             state["running"] = True
@@ -190,6 +257,12 @@ class PADMApp(tk.Tk):
         self._set_content(frame)
 
     def show_tremor_test(self) -> None:
+        """
+        Display the tremor rate test screen and capture cursor motion samples.
+
+        Input: user motion events inside the canvas.
+        Output: a TremorRateTest result object saved in the manager and shown as JSON.
+        """
         if not self._require_manager():
             return
 
@@ -209,6 +282,12 @@ class PADMApp(tk.Tk):
         state = {"test": None, "start_time": None, "running": False}
 
         def on_motion(event):
+            """
+            Capture cursor motion while the tremor test is running.
+
+            Input: tkinter motion event.
+            Output: stores timestamped x/y coordinates in the TremorRateTest instance.
+            """
             if state["running"] and state["test"] is not None and state["start_time"] is not None:
                 timestamp = time.perf_counter() - state["start_time"]
                 state["test"].add_sample(timestamp, event.x, event.y)
@@ -216,6 +295,12 @@ class PADMApp(tk.Tk):
                 canvas.create_oval(event.x - r, event.y - r, event.x + r, event.y + r)
 
         def finish_test():
+            """
+            Finalize the tremor test and save results.
+
+            Input: internal timer callback.
+            Output: stores motor result and displays JSON in the text widget.
+            """
             if not state["running"] or state["test"] is None:
                 return
             state["running"] = False
@@ -225,6 +310,12 @@ class PADMApp(tk.Tk):
             result_text.insert(tk.END, json.dumps(result.to_dict(), indent=2))
 
         def start_test():
+            """
+            Start the tremor capture test.
+
+            Input: button press.
+            Output: begins mouse motion capture for 8 seconds.
+            """
             canvas.delete("all")
             state["test"] = TremorRateTest(hand=hand_var.get())
             state["start_time"] = time.perf_counter()
@@ -238,6 +329,12 @@ class PADMApp(tk.Tk):
         self._set_content(frame)
 
     def show_tracing_test(self) -> None:
+        """
+        Display the tracing precision test screen and capture path tracking.
+
+        Input: user drag events along the guided target path.
+        Output: a TracingPrecisionTest result object saved and displayed as JSON.
+        """
         if not self._require_manager():
             return
 
@@ -261,6 +358,12 @@ class PADMApp(tk.Tk):
         state = {"running": False, "start_time": None}
 
         def start_trace(_event=None):
+            """
+            Begin tracing capture on mouse press.
+
+            Input: mouse button press event.
+            Output: resets the tracing test and starts sample collection.
+            """
             tracing_test.reset()
             state["running"] = True
             state["start_time"] = time.perf_counter()
@@ -268,6 +371,12 @@ class PADMApp(tk.Tk):
             result_text.insert(tk.END, "Tracing capture started...\n")
 
         def trace_motion(event):
+            """
+            Add motion samples while tracing is in progress.
+
+            Input: mouse motion event while holding the button.
+            Output: updates the tracing test sample buffer and draws the stroke.
+            """
             if state["running"] and state["start_time"] is not None:
                 timestamp = time.perf_counter() - state["start_time"]
                 tracing_test.add_sample(timestamp, event.x, event.y)
@@ -275,6 +384,12 @@ class PADMApp(tk.Tk):
                 canvas.create_oval(event.x - r, event.y - r, event.x + r, event.y + r, fill="black")
 
         def stop_trace(_event=None):
+            """
+            Finalize the tracing test and save results.
+
+            Input: mouse button release event.
+            Output: stores motor result and displays JSON result text.
+            """
             if not state["running"]:
                 return
             state["running"] = False
@@ -289,6 +404,12 @@ class PADMApp(tk.Tk):
         self._set_content(frame)
 
     def show_results(self) -> None:
+        """
+        Display the unified session results screen.
+
+        Input: current manager data.
+        Output: renders the full JSON payload produced by manager.export_json().
+        """
         if not self._require_manager():
             return
 

@@ -12,6 +12,9 @@ Tests implemented:
 Author: Luke Decker 
 """
 
+# Import section for dataclass support, typing, and statistical calculations.
+# Input: none at import time.
+# Output: makes dataclass helpers and typing definitions available for the module.
 from __future__ import annotations
 
 from dataclasses import dataclass, asdict
@@ -20,8 +23,8 @@ import statistics
 
 
 # RESULT DATA CLASSES
-# =========================================
-
+# Input: values provided when each result object is created.
+# Output: plain dictionary representation available via to_dict().
 @dataclass
 class ReactionTimeTestResult:
     """Results from reaction time assessment."""
@@ -66,8 +69,8 @@ class SymbolMatchingTestResult:
 
 
 # REACTION TIME TEST
-# =========================================
-
+# Input: stimulus and response timestamps for each trial.
+# Output: aggregate reaction time metrics via finalize().
 class ReactionTimeTest:
     """Collects reaction times for multiple trials."""
 
@@ -109,8 +112,8 @@ class ReactionTimeTest:
 
 
 # SEQUENCE MEMORY TEST
-# =========================================
-
+# Input: expected and user-entered integer sequences per round.
+# Output: accuracy, longest correct span, and round counts via finalize().
 class SequenceMemoryTest:
     """Tracks correctness across memory-sequence rounds."""
 
@@ -155,8 +158,8 @@ class SequenceMemoryTest:
 
 
 # SYMBOL MATCHING / PROCESSING SPEED TEST
-# =========================================
-
+# Input: correctness of each response plus start/stop timestamps.
+# Output: item accuracy, items-per-second, and duration metrics via finalize().
 class SymbolMatchingTest:
     """Tracks correct and incorrect responses during a processing-speed task."""
 
@@ -214,8 +217,8 @@ class SymbolMatchingTest:
 
 
 # OPTIONAL SESSION WRAPPER
-# =========================================
-
+# Input: individual cognitive test results as objects exposing to_dict().
+# Output: combined export dictionary of all saved cognitive test results.
 class CognitiveAssessmentSession:
     """Collects and exports results from multiple cognitive assessment tests."""
 
@@ -233,8 +236,8 @@ class CognitiveAssessmentSession:
 
 
 # EXAMPLE USAGE
-# =========================================
-
+# Input: hardcoded sample stimulus/response data for demonstration.
+# Output: printed example results and session export dictionary.
 if __name__ == "__main__":
     # Reaction time demo
     reaction = ReactionTimeTest()
