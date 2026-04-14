@@ -12,16 +12,12 @@ Tests implemented:
 Author: Luke Decker project scaffold
 """
 
-# Import section for core typing, math, statistics, and optional NumPy support.
-# Input: none directly at import time.
-# Output: provides helper modules and types used by motor test classes below.
 from __future__ import annotations
 
 from dataclasses import dataclass, asdict
-from typing import List, Tuple, Optional, Dict
+from typing import List, Tuple, Optional, Dict, Any
 import math
 import statistics
-import numpy as np
 
 try:
     import numpy as np
@@ -33,9 +29,6 @@ Point = Tuple[float, float]
 TimedPoint = Tuple[float, float, float]  # (timestamp, x, y)
 
 
-# RESULT DATA CLASSES
-# Input: values supplied when a result object is instantiated.
-# Output: simple dictionaries usable by export layers and downstream processors.
 @dataclass
 class TappingTestResult:
     """Results from tapping speed assessment."""
@@ -46,8 +39,7 @@ class TappingTestResult:
     average_interval_seconds: Optional[float]
     interval_std_seconds: Optional[float]
 
-    def to_dict(self) -> Dict:
-        """Convert tapping result to a dictionary."""
+    def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
 
 
@@ -62,8 +54,7 @@ class TremorTestResult:
     rms_amplitude: Optional[float]
     method: str
 
-    def to_dict(self) -> Dict:
-        """Convert tremor result to a dictionary."""
+    def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
 
 
@@ -77,28 +68,21 @@ class TracingTestResult:
     path_efficiency: Optional[float]
     completion_ratio: Optional[float]
 
-    def to_dict(self) -> Dict:
-        """Convert tracing result to a dictionary."""
+    def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
 
 
-# SHARED GEOMETRY HELPERS
-# Input: point coordinate values provided by motor tests.
-# Output: computed distances used by tracing and path analysis.
 def euclidean_distance(p1: Point, p2: Point) -> float:
-    """Compute Euclidean distance between two points."""
     return math.dist(p1, p2)
 
 
 def path_length(points: List[Point]) -> float:
-    """Calculate total distance along a piecewise-linear path."""
     if len(points) < 2:
         return 0.0
     return sum(euclidean_distance(points[i - 1], points[i]) for i in range(1, len(points)))
 
 
 def point_to_segment_distance(p: Point, a: Point, b: Point) -> float:
-    """Shortest distance from point p to line segment ab."""
     ax, ay = a
     bx, by = b
     px, py = p
@@ -120,7 +104,6 @@ def point_to_segment_distance(p: Point, a: Point, b: Point) -> float:
 
 
 def point_to_polyline_distance(p: Point, polyline: List[Point]) -> float:
-    """Find minimum distance from point p to a piecewise-linear path."""
     if not polyline:
         raise ValueError("Polyline cannot be empty.")
     if len(polyline) == 1:
@@ -132,29 +115,22 @@ def point_to_polyline_distance(p: Point, polyline: List[Point]) -> float:
     )
 
 
-# TAPPING SPEED TEST
-# Input: timestamped tap events recorded during the test.
-# Output: TappingTestResult with duration, rate, and interval statistics.
 class TappingSpeedTest:
     """Collects tap timestamps and computes tapping speed metrics."""
 
     def __init__(self, hand: str):
-        """Initialize tapping test for specified hand."""
         self.hand = hand
         self._tap_times: List[float] = []
 
     def record_tap(self, timestamp: float) -> None:
-        """Record a tap at the given timestamp (seconds)."""
         self._tap_times.append(timestamp)
 
     def reset(self) -> None:
-        """Clear all recorded taps."""
         self._tap_times.clear()
 
     def finalize(self) -> TappingTestResult:
-        """Compute and return tapping test results."""
         if len(self._tap_times) < 2:
-            duration = 0.0 if len(self._tap_times) < 2 else self._tap_times[-1] - self._tap_times[0]
+            duration = 0.0
             return TappingTestResult(
                 hand=self.hand,
                 total_taps=len(self._tap_times),
@@ -182,27 +158,20 @@ class TappingSpeedTest:
         )
 
 
-# TREMOR RATE TEST
-# Input: time-stamped x/y motion samples collected during tremor capture.
-# Output: TremorTestResult with estimated frequency, amplitude, and method metadata.
 class TremorRateTest:
     """Estimates tremor frequency from cursor/touchpad motion using FFT or zero-crossing."""
 
     def __init__(self, hand: str):
-        """Initialize tremor test for specified hand."""
         self.hand = hand
         self._samples: List[TimedPoint] = []
 
     def add_sample(self, timestamp: float, x: float, y: float) -> None:
-        """Add a motion sample at (timestamp, x, y)."""
         self._samples.append((timestamp, x, y))
 
     def reset(self) -> None:
-        """Clear all recorded samples."""
         self._samples.clear()
 
     def finalize(self) -> TremorTestResult:
-        """Compute and return tremor test results."""
         if len(self._samples) < 5:
             return TremorTestResult(
                 hand=self.hand,
@@ -255,7 +224,6 @@ class TremorRateTest:
         )
 
     def _estimate_frequency_fft(self, times: List[float], signal: List[float]) -> Optional[float]:
-        """Estimate dominant tremor frequency using FFT on radial displacement."""
         if np is None or len(signal) < 8:
             return None
 
@@ -287,7 +255,6 @@ class TremorRateTest:
         return float(band_freqs[dominant_idx])
 
     def _estimate_frequency_zero_crossing(self, times: List[float], signal: List[float]) -> Optional[float]:
-        """Estimate tremor frequency using zero-crossing method (fallback without numpy)."""
         centered = [v - statistics.mean(signal) for v in signal]
         crossings = []
 
@@ -308,29 +275,22 @@ class TremorRateTest:
         return 1.0 / (2.0 * avg_crossing_interval)
 
 
-# TRACING PRECISION TEST
-# Input: time-stamped trace points produced during the user tracing task.
-# Output: TracingTestResult with deviation, efficiency, and completion metrics.
 class TracingPrecisionTest:
     """Evaluates tracing accuracy by comparing user path to target path."""
 
     def __init__(self, target_path: List[Point]):
-        """Initialize with target path to trace."""
         if len(target_path) < 2:
             raise ValueError("Target path must have at least 2 points.")
         self.target_path = target_path
         self._trace_samples: List[TimedPoint] = []
 
     def add_sample(self, timestamp: float, x: float, y: float) -> None:
-        """Record a traced position at (timestamp, x, y)."""
         self._trace_samples.append((timestamp, x, y))
 
     def reset(self) -> None:
-        """Clear all recorded trace samples."""
         self._trace_samples.clear()
 
     def finalize(self) -> TracingTestResult:
-        """Compute and return tracing test results."""
         if len(self._trace_samples) < 2:
             return TracingTestResult(
                 duration_seconds=0.0,
@@ -348,8 +308,6 @@ class TracingPrecisionTest:
         deviations = [point_to_polyline_distance(p, self.target_path) for p in trace_points]
 
         user_path_len = path_length(trace_points)
-        target_path_len = path_length(self.target_path)
-
         straight_line = euclidean_distance(trace_points[0], trace_points[-1])
         path_efficiency = (straight_line / user_path_len) if user_path_len > 0 else None
 
@@ -361,15 +319,14 @@ class TracingPrecisionTest:
             mean_deviation=statistics.mean(deviations) if deviations else None,
             max_deviation=max(deviations) if deviations else None,
             path_efficiency=path_efficiency,
-            completion_ratio=completion_ratio if target_path_len > 0 else None,
+            completion_ratio=completion_ratio,
         )
 
     def _estimate_completion_ratio(self, trace_points: List[Point]) -> float:
-        """Estimate path coverage by checking proximity to target vertices."""
         if not self.target_path:
             return 0.0
 
-        threshold = 15.0  # pixels; tune later
+        threshold = 15.0
         covered = 0
 
         for target_point in self.target_path:
@@ -380,30 +337,79 @@ class TracingPrecisionTest:
         return covered / len(self.target_path)
 
 
-# OPTIONAL SESSION WRAPPER
-# Input: individual motor test result objects exposing to_dict().
-# Output: combined export dictionary of all saved motor test results.
+def _mean_optional(values: List[Optional[float]]) -> Optional[float]:
+    cleaned = [v for v in values if v is not None]
+    return statistics.mean(cleaned) if cleaned else None
+
+
+def average_tapping_results(results: List[TappingTestResult], hand: str) -> Dict[str, Any]:
+    if not results:
+        raise ValueError("No tapping results supplied.")
+
+    return {
+        "hand": hand,
+        "trial_count": len(results),
+        "trial_results": [r.to_dict() for r in results],
+        "total_taps": int(round(statistics.mean(r.total_taps for r in results))),
+        "duration_seconds": statistics.mean(r.duration_seconds for r in results),
+        "taps_per_second": statistics.mean(r.taps_per_second for r in results),
+        "average_interval_seconds": _mean_optional([r.average_interval_seconds for r in results]),
+        "interval_std_seconds": _mean_optional([r.interval_std_seconds for r in results]),
+    }
+
+
+def average_tremor_results(results: List[TremorTestResult], hand: str) -> Dict[str, Any]:
+    if not results:
+        raise ValueError("No tremor results supplied.")
+
+    return {
+        "hand": hand,
+        "trial_count": len(results),
+        "trial_results": [r.to_dict() for r in results],
+        "duration_seconds": statistics.mean(r.duration_seconds for r in results),
+        "sample_count": int(round(statistics.mean(r.sample_count for r in results))),
+        "estimated_frequency_hz": _mean_optional([r.estimated_frequency_hz for r in results]),
+        "mean_amplitude": _mean_optional([r.mean_amplitude for r in results]),
+        "rms_amplitude": _mean_optional([r.rms_amplitude for r in results]),
+        "method": "averaged",
+    }
+
+
+def average_tracing_results(results: List[TracingTestResult]) -> Dict[str, Any]:
+    if not results:
+        raise ValueError("No tracing results supplied.")
+
+    return {
+        "trial_count": len(results),
+        "trial_results": [r.to_dict() for r in results],
+        "duration_seconds": statistics.mean(r.duration_seconds for r in results),
+        "sample_count": int(round(statistics.mean(r.sample_count for r in results))),
+        "mean_deviation": _mean_optional([r.mean_deviation for r in results]),
+        "max_deviation": _mean_optional([r.max_deviation for r in results]),
+        "path_efficiency": _mean_optional([r.path_efficiency for r in results]),
+        "completion_ratio": _mean_optional([r.completion_ratio for r in results]),
+    }
+
+
 class MotorAssessmentSession:
     """Collects and exports results from multiple motor assessment tests."""
 
     def __init__(self):
-        """Initialize empty results container."""
         self.results = {}
 
     def save_result(self, test_name: str, result) -> None:
-        """Store test result by name."""
-        self.results[test_name] = result.to_dict()
+        if hasattr(result, "to_dict"):
+            self.results[test_name] = result.to_dict()
+        elif isinstance(result, dict):
+            self.results[test_name] = result
+        else:
+            raise TypeError("Result must be a dict or expose a to_dict() method.")
 
-    def export(self) -> Dict:
-        """Return all stored results as dictionary."""
+    def export(self) -> Dict[str, Any]:
         return self.results
 
 
-# EXAMPLE USAGE
-# Input: sample motion and tap data hardcoded for demonstration.
-# Output: printed example results and session export dictionary.
 if __name__ == "__main__":
-    # Tapping test demo
     tapping = TappingSpeedTest(hand="dominant")
     tap_times = [0.00, 0.19, 0.37, 0.56, 0.75, 0.93, 1.12]
     for t in tap_times:
@@ -412,7 +418,6 @@ if __name__ == "__main__":
     print("TAPPING RESULT")
     print(tap_result.to_dict())
 
-    # Tremor test demo
     tremor = TremorRateTest(hand="dominant")
     for i in range(200):
         t = i * 0.01
@@ -423,7 +428,6 @@ if __name__ == "__main__":
     print("\nTREMOR RESULT")
     print(tremor_result.to_dict())
 
-    # Tracing test demo
     target = [(0, 0), (50, 0), (100, 0), (150, 0)]
     tracing = TracingPrecisionTest(target_path=target)
 
@@ -442,11 +446,5 @@ if __name__ == "__main__":
     print("\nTRACING RESULT")
     print(tracing_result.to_dict())
 
-    # Session export demo
-    session = MotorAssessmentSession()
-    session.save_result("tapping_dominant", tap_result)
-    session.save_result("tremor_dominant", tremor_result)
-    session.save_result("tracing_line_test", tracing_result)
-
-    print("\nSESSION EXPORT")
-    print(session.export())
+    print("\nAVERAGED TAPPING")
+    print(average_tapping_results([tap_result, tap_result, tap_result], hand="dominant"))
