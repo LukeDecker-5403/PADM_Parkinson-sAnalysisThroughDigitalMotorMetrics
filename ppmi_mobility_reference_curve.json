@@ -1,0 +1,174 @@
+{
+  "source_file": "Neuro_QoL__Lower_Extremity_Function__Mobility__-_Short_Form_22Apr2026.csv",
+  "score_name": "Neuro-QoL mobility impairment score",
+  "score_range": {
+    "minimum": 0,
+    "maximum": 100,
+    "lower_means": "less reported mobility impairment",
+    "higher_means": "more reported mobility impairment"
+  },
+  "curve": [
+    {
+      "event_id": "V04",
+      "visit_order": 4,
+      "participant_count": 2306,
+      "mean_raw_mobility_score": 38.3387,
+      "mean_mobility_impairment_score": 5.1916,
+      "median_mobility_impairment_score": 0.0,
+      "std_mobility_impairment_score": 9.2303
+    },
+    {
+      "event_id": "V06",
+      "visit_order": 6,
+      "participant_count": 1680,
+      "mean_raw_mobility_score": 38.1679,
+      "mean_mobility_impairment_score": 5.7254,
+      "median_mobility_impairment_score": 0.0,
+      "std_mobility_impairment_score": 10.0445
+    },
+    {
+      "event_id": "V08",
+      "visit_order": 8,
+      "participant_count": 890,
+      "mean_raw_mobility_score": 38.1101,
+      "mean_mobility_impairment_score": 5.9059,
+      "median_mobility_impairment_score": 0.0,
+      "std_mobility_impairment_score": 10.049
+    },
+    {
+      "event_id": "V10",
+      "visit_order": 10,
+      "participant_count": 528,
+      "mean_raw_mobility_score": 37.4015,
+      "mean_mobility_impairment_score": 8.1203,
+      "median_mobility_impairment_score": 3.125,
+      "std_mobility_impairment_score": 13.614
+    },
+    {
+      "event_id": "V12",
+      "visit_order": 12,
+      "participant_count": 405,
+      "mean_raw_mobility_score": 37.158,
+      "mean_mobility_impairment_score": 8.8812,
+      "median_mobility_impairment_score": 3.125,
+      "std_mobility_impairment_score": 15.9525
+    },
+    {
+      "event_id": "V13",
+      "visit_order": 13,
+      "participant_count": 505,
+      "mean_raw_mobility_score": 36.8356,
+      "mean_mobility_impairment_score": 9.8886,
+      "median_mobility_impairment_score": 0.0,
+      "std_mobility_impairment_score": 17.1859
+    },
+    {
+      "event_id": "V14",
+      "visit_order": 14,
+      "participant_count": 595,
+      "mean_raw_mobility_score": 36.363,
+      "mean_mobility_impairment_score": 11.3655,
+      "median_mobility_impairment_score": 3.125,
+      "std_mobility_impairment_score": 17.5133
+    },
+    {
+      "event_id": "V15",
+      "visit_order": 15,
+      "participant_count": 581,
+      "mean_raw_mobility_score": 36.7487,
+      "mean_mobility_impairment_score": 10.1603,
+      "median_mobility_impairment_score": 3.125,
+      "std_mobility_impairment_score": 16.2661
+    },
+    {
+      "event_id": "V16",
+      "visit_order": 16,
+      "participant_count": 426,
+      "mean_raw_mobility_score": 35.9977,
+      "mean_mobility_impairment_score": 12.5073,
+      "median_mobility_impairment_score": 6.25,
+      "std_mobility_impairment_score": 17.2717
+    },
+    {
+      "event_id": "V17",
+      "visit_order": 17,
+      "participant_count": 406,
+      "mean_raw_mobility_score": 35.7512,
+      "mean_mobility_impairment_score": 13.2774,
+      "median_mobility_impairment_score": 6.25,
+      "std_mobility_impairment_score": 17.6749
+    },
+    {
+      "event_id": "V18",
+      "visit_order": 18,
+      "participant_count": 345,
+      "mean_raw_mobility_score": 35.4609,
+      "mean_mobility_impairment_score": 14.1848,
+      "median_mobility_impairment_score": 9.375,
+      "std_mobility_impairment_score": 18.3654
+    },
+    {
+      "event_id": "V19",
+      "visit_order": 19,
+      "participant_count": 254,
+      "mean_raw_mobility_score": 35.2717,
+      "mean_mobility_impairment_score": 14.7761,
+      "median_mobility_impairment_score": 6.25,
+      "std_mobility_impairment_score": 18.6206
+    },
+    {
+      "event_id": "V20",
+      "visit_order": 20,
+      "participant_count": 209,
+      "mean_raw_mobility_score": 35.1866,
+      "mean_mobility_impairment_score": 15.0419,
+      "median_mobility_impairment_score": 6.25,
+      "std_mobility_impairment_score": 19.2974
+    },
+    {
+      "event_id": "V21",
+      "visit_order": 21,
+      "participant_count": 118,
+      "mean_raw_mobility_score": 35.7712,
+      "mean_mobility_impairment_score": 13.215,
+      "median_mobility_impairment_score": 3.125,
+      "std_mobility_impairment_score": 18.4896
+    },
+    {
+      "event_id": "V22",
+      "visit_order": 22,
+      "participant_count": 21,
+      "mean_raw_mobility_score": 36.7619,
+      "mean_mobility_impairment_score": 10.119,
+      "median_mobility_impairment_score": 0.0,
+      "std_mobility_impairment_score": 21.5841
+    },
+    {
+      "event_id": "BL",
+      "visit_order": 9999,
+      "participant_count": 3342,
+      "mean_raw_mobility_score": 38.4746,
+      "mean_mobility_impairment_score": 4.767,
+      "median_mobility_impairment_score": 0.0,
+      "std_mobility_impairment_score": 8.8096
+    },
+    {
+      "event_id": "R04",
+      "visit_order": 9999,
+      "participant_count": 5,
+      "mean_raw_mobility_score": 38.8,
+      "mean_mobility_impairment_score": 3.75,
+      "median_mobility_impairment_score": 3.125,
+      "std_mobility_impairment_score": 3.6443
+    },
+    {
+      "event_id": "R06",
+      "visit_order": 9999,
+      "participant_count": 6,
+      "mean_raw_mobility_score": 34.1667,
+      "mean_mobility_impairment_score": 18.2292,
+      "median_mobility_impairment_score": 12.5,
+      "std_mobility_impairment_score": 18.2589
+    }
+  ]
+}
